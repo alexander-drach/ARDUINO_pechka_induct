@@ -45,7 +45,7 @@ byte degree[8] = // кодируем символ градуса
 int temp; // начальное значение температуры при загрузке
 float time; // начальное значение времени в миллисекундах
 
-int menu;
+int menu = 2;
 
 bool play = false;
 bool ok = false;
@@ -185,14 +185,14 @@ void buzOn() { // функция включения пищалки на один
 void outPutTime(float time) {
   char buffer[16]; // буфер для хранения строки
   dtostrf((time / 60), 4, 1, buffer); // преобразование float в строку с двумя знаками после запятой
-  sprintf(lcdLine, "Time: %ss", buffer);
-  lcd.setCursor(1, 0);
+  sprintf(lcdLine, " Time: %ss", buffer);
+  lcd.setCursor(0, 0);
   lcd.print(lcdLine);
 } 
 
 void outPutTemp(int temp) {
-  sprintf(lcdLine, "Temp: %3d\1C", temp);
-  lcd.setCursor(1, 1);
+  sprintf(lcdLine, " Temp: %3d\1C", temp);
+  lcd.setCursor(0, 1);
   lcd.print(lcdLine);
 }
 
