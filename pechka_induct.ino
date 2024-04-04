@@ -83,7 +83,7 @@ void loop() {
     buzOn(); // включение пищалки на один писк
     Serial.println("reset");
     setDefaultVlue();
-    offDevice();
+    resetDevice();
     // ok = false;
   }
 
@@ -165,7 +165,9 @@ void loop() {
         Serial.print(sens.getTemp());
         Serial.println(" *C");
         offDevice();
-        delay(20000); // задержка на остывание 10 сек, чтобы датчик во время остывания не срабатывал
+        delay(1000); // задержка на остывание 1 сек, чтобы датчик во время остывания не срабатывал
+      } else {
+        readyDevice();
       }
     } else Serial.println("Error");   // ошибка чтения или подключения - выводим лог
     delay(1000);
@@ -247,8 +249,6 @@ void offDevice() { // выключение устройства
   offLeds(); // выключение всех светодиодов
   digitalWrite(red_pin, HIGH); // Включение КРАСНОГО светодиода
   delay(3000); // задержка 3 секунды после выключения
-  offLeds(); // выключение всех светодиодов
-  digitalWrite(blue_pin, HIGH); // Включение СИНЕГО светодиода
   buzOnThree();
 }
 
@@ -266,11 +266,26 @@ void offDeviceBlinkLed() { // выключение устройства
   digitalWrite(blue_pin, HIGH); // Включение СИНЕГО светодиода
 }
 
+void resetDevice() {
+  digitalWrite(12, HIGH); // Выключение реле
+  offLeds(); // выключение всех светодиодов
+  digitalWrite(red_pin, HIGH); // Включение КРАСНОГО светодиода
+  delay(3000);
+  offLeds(); // выключение всех светодиодов
+  digitalWrite(blue_pin, HIGH); // Включение СИНЕГО светодиода
+}
+
 void onDevice() {
   Serial.println("set");
   digitalWrite(12, LOW); // Включение реле
   offLeds(); // Выключение ВСЕХ светодиодов
   digitalWrite(green_pin, HIGH); // Включение ЗЕЛЕНОГО светодиода
+}
+
+void readyDevice() {
+  offLeds(); // Выключение ВСЕХ светодиодов
+  digitalWrite(blue_pin, HIGH); // Включение СИНЕГО светодиода
+  digitalWrite(13, LOW); // Выключение пищалки
 }
 
 void offLeds() {
