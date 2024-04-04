@@ -83,25 +83,31 @@ void loop() {
     buzOn(); // включение пищалки на один писк
     Serial.println("reset");
     setDefaultVlue();
-    offLeds(); // выключение всех светодиодов
-    digitalWrite(blue_pin, HIGH); // Включение СИНЕГО светодиода
-  }
-
-  if (btnSet.isClick()) { // ЗАПУСК программы и ОСТАНОВКА при повторном нажатии
-    buzOn(); // включение пищалки на один писк
-    if (play) {
-      offDeviceBlinkLed();
-      play = false;
-    } else {
-      play = true;
-      onDevice();
-    }
+    offDevice();
+    // ok = false;
   }
 
   if (btnOk.isClick()) {
     Serial.println("ok");
-    ok = true;
+    if (menu == 1 || menu == 0) {
+      ok = true;
+    }    
     buzOn(); // включение пищалки на один писк
+  }
+
+  if (btnSet.isClick()) { // ЗАПУСК программы и ОСТАНОВКА при повторном нажатии
+    if (ok && (menu == 1 || menu == 0)) {
+      buzOn(); // включение пищалки на один писк
+      if (play) {
+        offDeviceBlinkLed();
+        play = false;
+        // ok = false;
+      } else {
+        play = true;
+        onDevice();
+        // ok = false;
+      }
+    }    
   }
 
   if (btnUp.isClick()) { // выбор меню ВРЕМЯ
@@ -220,6 +226,7 @@ void offDevice() { // выключение устройства
   offLeds(); // выключение всех светодиодов
   digitalWrite(red_pin, HIGH); // Включение КРАСНОГО светодиода
   delay(3000); // задержка 3 секунды после выключения
+  offLeds(); // выключение всех светодиодов
   digitalWrite(blue_pin, HIGH); // Включение СИНЕГО светодиода
 }
 
