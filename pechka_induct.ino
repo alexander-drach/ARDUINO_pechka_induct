@@ -82,7 +82,6 @@ void loop() {
   if (btnReset.isHolded()) {
     buzOn(); // включение пищалки на один писк
     Serial.println("reset");
-    setDefaultVlue();
     resetDevice();
     // ok = false;
   }
@@ -156,23 +155,23 @@ void loop() {
     }    
   }
 
-  if ((menu == 1) && play) {
-    if (sens.readTemp()) { // Читаем температуру с термопары 
-      if (sens.getTemp() >= temp) {
-      Serial.print("Temp: "); // Если чтение прошло успешно - выводим в Serial
-      // Забираем температуру через getTemp
-      //Serial.print(sens.getTempInt());   // или getTempInt - целые числа (без float) 
-        Serial.print(sens.getTemp());
-        Serial.println(" *C");
-        offDevice();
-        delay(1000); // задержка на остывание 1 сек, чтобы датчик во время остывания не срабатывал
-      } else {
-        readyDevice();
-      }
-    } else Serial.println("Error");   // ошибка чтения или подключения - выводим лог
-    delay(1000);
-    // запрос температуры
-  }  
+  // if ((menu == 1) && play) {
+  //   if (sens.readTemp()) { // Читаем температуру с термопары 
+  //     if (sens.getTemp() >= temp) {
+  //     Serial.print("Temp: "); // Если чтение прошло успешно - выводим в Serial
+  //     // Забираем температуру через getTemp
+  //     //Serial.print(sens.getTempInt());   // или getTempInt - целые числа (без float) 
+  //       Serial.print(sens.getTemp());
+  //       Serial.println(" *C");
+  //       offDevice();
+  //       delay(1000); // задержка на остывание 1 сек, чтобы датчик во время остывания не срабатывал
+  //     } else {
+  //       // readyDevice();
+  //     }
+  //   } else Serial.println("Error");   // ошибка чтения или подключения - выводим лог
+  //   delay(1000);
+  //   // запрос температуры
+  // }  
 
   // sensor.requestTemp();
   
@@ -187,8 +186,20 @@ void loop() {
 //     Serial.println("error");
 //   } 
 
-  outPutTime(time);
-  outPutTemp(temp);
+  if (menu == 0) {
+    MenuCheckTime(time);
+    outPutTemp(temp);
+  }
+
+  if (menu == 1) {
+    outPutTime(time);
+    MenuCheckTemp(temp);
+  } 
+
+  if (menu == 2) {
+    outPutTime(time);
+    outPutTemp(temp);
+  }  
 }
 
 void buzOn() { // функция включения пищалки на один писк
@@ -250,6 +261,10 @@ void offDevice() { // выключение устройства
   digitalWrite(red_pin, HIGH); // Включение КРАСНОГО светодиода
   delay(3000); // задержка 3 секунды после выключения
   buzOnThree();
+  play = false;
+  offLeds(); // Выключение ВСЕХ светодиодов
+  digitalWrite(blue_pin, HIGH); // Включение СИНЕГО светодиода
+  digitalWrite(13, LOW); // Выключение пищалки
 }
 
 void offDeviceBlinkLed() { // выключение устройства
@@ -267,12 +282,14 @@ void offDeviceBlinkLed() { // выключение устройства
 }
 
 void resetDevice() {
+  setDefaultVlue();
   digitalWrite(12, HIGH); // Выключение реле
   offLeds(); // выключение всех светодиодов
   digitalWrite(red_pin, HIGH); // Включение КРАСНОГО светодиода
   delay(3000);
   offLeds(); // выключение всех светодиодов
   digitalWrite(blue_pin, HIGH); // Включение СИНЕГО светодиода
+  menu = 2;
 }
 
 void onDevice() {
@@ -282,11 +299,11 @@ void onDevice() {
   digitalWrite(green_pin, HIGH); // Включение ЗЕЛЕНОГО светодиода
 }
 
-void readyDevice() {
-  offLeds(); // Выключение ВСЕХ светодиодов
-  digitalWrite(blue_pin, HIGH); // Включение СИНЕГО светодиода
-  digitalWrite(13, LOW); // Выключение пищалки
-}
+// void readyDevice() {
+//   offLeds(); // Выключение ВСЕХ светодиодов
+//   digitalWrite(blue_pin, HIGH); // Включение СИНЕГО светодиода
+//   digitalWrite(13, LOW); // Выключение пищалки
+// }
 
 void offLeds() {
   digitalWrite(red_pin, LOW); // Выключение КРАСНОГО светодиода
