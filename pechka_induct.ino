@@ -47,6 +47,9 @@ float time; // начальное значение времени в милли�
 
 int menu;
 
+bool play = false;
+bool ok = false;
+
 void setup() {
   Serial.begin(9600);
 
@@ -59,17 +62,15 @@ void setup() {
   lcd.backlight(); // Включаем подсветку
   lcd.createChar(1, degree); // Создаем символ под номером 
 
-  // pinMode(red_pin, OUTPUT);
-  // pinMode(green_pin, OUTPUT);
-  //pinMode(blue_pin, OUTPUT);
+  pinMode(red_pin, OUTPUT);
+  pinMode(green_pin, OUTPUT);
+  pinMode(blue_pin, OUTPUT);
+
   setDefaultVlue();
+  digitalWrite(blue_pin, HIGH); // Включение СИНЕГО светодиода
 }
 
 void loop() {
-// digitalWrite(red_pin, HIGH); // Включение КРАСНОГО светодиода
-// digitalWrite(green_pin, HIGH); // Включение ЗЕЛЕНОГО светодиода
-// digitalWrite(blue_pin, HIGH); // Включение СИНЕГО светодиода
-
   btnReset.tick();
   btnSet.tick();
   btnOk.tick();
@@ -79,26 +80,38 @@ void loop() {
   btnUp.tick();
 
   if (btnReset.isHolded()) {
+    buzOn(); // включение пищалки на один писк
     Serial.println("reset");
-    digitalWrite(12, HIGH); // Выключение реле
     setDefaultVlue();
+    offLeds(); // выключение всех светодиодов
+    digitalWrite(blue_pin, HIGH); // Включение СИНЕГО светодиода
   }
 
-  if (btnSet.isClick()) {
-    Serial.println("set");
+  if (btnSet.isClick()) { // ЗАПУСК программы и ОСТАНОВКА при повторном нажатии
+    buzOn(); // включение пищалки на один писк
+    if (play) {
+      offDeviceBlinkLed();
+      play = false;
+    } else {
+      play = true;
+      onDevice();
+    }
   }
 
   if (btnOk.isClick()) {
     Serial.println("ok");
+    ok = true;
     buzOn(); // включение пищалки на один писк
   }
 
   if (btnUp.isClick()) { // выбор меню ВРЕМЯ
+    buzOn(); // включение пищалки на один писк
     menu = 0;
     MenuCheckTime(time);   
   }
 
   if (btnDown.isClick()) { // выбор меню ТЕМПЕРАТУРА
+    buzOn(); // включение пищалки на один писк
     menu = 1;    
     MenuCheckTemp(temp);
   }
@@ -137,9 +150,7 @@ void loop() {
     }    
   }
 
-  // digitalWrite(12, HIGH); // Включение реле
-
-  // if (sens.readTemp()) {            // Читаем температуру
+  // if (sens.readTemp()) {            // Читаем температуру с термопары
   //   Serial.print("Temp: ");         // Если чтение прошло успешно - выводим в Serial
   //   Serial.print(sens.getTemp());   // Забираем температуру через getTemp
   //   //Serial.print(sens.getTempInt());   // или getTempInt - целые числа (без float)
@@ -148,18 +159,18 @@ void loop() {
   // delay(1000);
   // запрос температуры
 
-  sensor.requestTemp();
+  // sensor.requestTemp();
   
-  // вместо delay используй таймер на millis(), пример async_read
+  //вместо delay используй таймер на millis(), пример async_read // Датчик охлаждения
   // delay(500);
   
-  // проверяем успешность чтения и выводим
-  // if (sensor.readTemp()) {
-  //   Serial.println(sensor.getTemp());
-  // }
-  // else {
-  //   Serial.println("error");
-  // } 
+  //проверяем успешность чтения и выводим
+//   if (sensor.readTemp()) {
+//     Serial.println(sensor.getTemp());
+//   }
+//   else {
+//     Serial.println("error");
+//   } 
 
   outPutTime(time);
   outPutTemp(temp);
@@ -202,4 +213,39 @@ void MenuCheckTemp(int temp) {
 void setDefaultVlue() {
   temp = 500;
   time = 180;
+}
+
+void offDevice() { // выключение устройства
+  digitalWrite(12, HIGH); // Выключение реле
+  offLeds(); // выключение всех светодиодов
+  digitalWrite(red_pin, HIGH); // Включение КРАСНОГО светодиода
+  delay(3000); // задержка 3 секунды после выключения
+  digitalWrite(blue_pin, HIGH); // Включение СИНЕГО светодиода
+}
+
+void offDeviceBlinkLed() { // выключение устройства
+  digitalWrite(12, HIGH); // Выключение реле
+  for (int i = 0; i <= 2; i++) {
+    digitalWrite(red_pin, HIGH); // Включение КРАСНОГО светодиода
+    delay(500);
+    offLeds(); // выключение всех светодиодов
+    delay(500);
+  }
+ 
+  offLeds(); // выключение всех светодиодов
+  delay(3000); // задержка 3 секунды после выключения
+  digitalWrite(blue_pin, HIGH); // Включение СИНЕГО светодиода
+}
+
+void onDevice() {
+  Serial.println("set");
+  digitalWrite(12, LOW); // Включение реле
+  offLeds(); // Выключение ВСЕХ светодиодов
+  digitalWrite(green_pin, HIGH); // Включение ЗЕЛЕНОГО светодиода
+}
+
+void offLeds() {
+  digitalWrite(red_pin, LOW); // Выключение КРАСНОГО светодиода
+  digitalWrite(blue_pin, LOW); // Выключение СИНЕГО светодиода
+  digitalWrite(green_pin, LOW); // Выключение ЗЕЛЕНОГО светодиода
 }
