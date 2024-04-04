@@ -156,14 +156,21 @@ void loop() {
     }    
   }
 
-  // if (sens.readTemp()) {            // Читаем температуру с термопары
-  //   Serial.print("Temp: ");         // Если чтение прошло успешно - выводим в Serial
-  //   Serial.print(sens.getTemp());   // Забираем температуру через getTemp
-  //   //Serial.print(sens.getTempInt());   // или getTempInt - целые числа (без float)
-  //   Serial.println(" *C");
-  // } else Serial.println("Error");   // ошибка чтения или подключения - выводим лог
-  // delay(1000);
-  // запрос температуры
+  if ((menu == 1) && play) {
+    if (sens.readTemp()) { // Читаем температуру с термопары 
+      if (sens.getTemp() >= temp) {
+      Serial.print("Temp: "); // Если чтение прошло успешно - выводим в Serial
+      // Забираем температуру через getTemp
+      //Serial.print(sens.getTempInt());   // или getTempInt - целые числа (без float) 
+        Serial.print(sens.getTemp());
+        Serial.println(" *C");
+        offDevice();
+        delay(20000); // задержка на остывание 10 сек, чтобы датчик во время остывания не срабатывал
+      }
+    } else Serial.println("Error");   // ошибка чтения или подключения - выводим лог
+    delay(1000);
+    // запрос температуры
+  }  
 
   // sensor.requestTemp();
   
@@ -185,6 +192,20 @@ void loop() {
 void buzOn() { // функция включения пищалки на один писк
   digitalWrite(13, HIGH); // Включение пищалки
   delay(100);
+  digitalWrite(13, LOW); // Выключение пищалки
+}
+
+void buzOnThree() { // функция включения пищалки на один писк
+  digitalWrite(13, HIGH); // Включение пищалки - 1
+  delay(500);
+  digitalWrite(13, LOW); // Выключение пищалки
+  delay(500);
+  digitalWrite(13, HIGH); // Включение пищалки - 2
+  delay(500);
+  digitalWrite(13, LOW); // Выключение пищалки
+  delay(500);
+  digitalWrite(13, HIGH); // Включение пищалки - 3
+  delay(500);
   digitalWrite(13, LOW); // Выключение пищалки
 }
 
@@ -228,6 +249,7 @@ void offDevice() { // выключение устройства
   delay(3000); // задержка 3 секунды после выключения
   offLeds(); // выключение всех светодиодов
   digitalWrite(blue_pin, HIGH); // Включение СИНЕГО светодиода
+  buzOnThree();
 }
 
 void offDeviceBlinkLed() { // выключение устройства
