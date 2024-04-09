@@ -50,6 +50,9 @@ int menu = 2;
 bool play = false;
 bool ok = false;
 
+unsigned long previousMillis = 0;
+const long interval = 1000; // интервал для измерения температуры (1 секунда)
+
 void setup() {
   Serial.begin(9600);
 
@@ -71,6 +74,8 @@ void setup() {
 }
 
 void loop() {
+  unsigned long currentMillis = millis();
+
   btnReset.tick();
   btnSet.tick();
   btnOk.tick();
@@ -97,7 +102,7 @@ void loop() {
   if (btnSet.isClick()) { // ЗАПУСК программы и ОСТАНОВКА при повторном нажатии
     Serial.println("set");
     if (play) {
-      offDevice();
+      offDeviceBlinkLed();
       play = false;
       Serial.println("set play FALSE");
       // ok = false;
@@ -158,20 +163,17 @@ void loop() {
   }
 
   if ((menu == 1) && play) {
-    if (sens.readTemp()) { // Читаем температуру с термопары 
-      if (sens.getTemp() >= temp) {
-      Serial.print("Temp: "); // Если чтение прошло успешно - выводим в Serial
-      // Забираем температуру через getTemp
-      //Serial.print(sens.getTempInt());   // или getTempInt - целые числа (без float) 
+    if (currentMillis - previousMillis >= interval) {
+      previousMillis = currentMillis;
+      if (sens.readTemp()) { // Читаем температуру с термопары 
+        if (sens.getTemp() >= temp) {
+        Serial.print("Temp: "); // Если чтение прошло успешно - выводим в Serial
         Serial.print(sens.getTemp());
         Serial.println(" *C");
         offDevice();
-        // delay(1000); // задержка на остывание 1 сек, чтобы датчик во время остывания не срабатывал
-      } else {
-        // readyDevice();
+        }
       }
-    } else Serial.println("Error");   // ошибка чтения или подключения - выводим лог
-    delay(1000);
+    }
     // запрос температуры
   }  
 
