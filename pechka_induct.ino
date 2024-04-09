@@ -53,8 +53,13 @@ bool ok = false;
 unsigned long previousMillis = 0;
 const long interval = 1000; // интервал для измерения температуры (1 секунда)
 
+unsigned long startTime;
+unsigned long countdownDuration = 5000; // 5 секунд
+
 void setup() {
   Serial.begin(9600);
+
+  startTime = millis(); // сохраняем время старта
 
   pinMode(12, OUTPUT); // Реле
   pinMode(13, OUTPUT); // Пищалка
@@ -75,6 +80,9 @@ void setup() {
 
 void loop() {
   unsigned long currentMillis = millis();
+
+  // unsigned long elapsedTime = millis() - startTime;
+  // unsigned long remainingTime = countdownDuration - elapsedTime;
 
   btnReset.tick();
   btnSet.tick();
@@ -163,7 +171,7 @@ void loop() {
   }
 
   if ((menu == 1) && play) {
-    if (currentMillis - previousMillis >= interval) {
+    if (currentMillis - previousMillis >= interval) { // 1 сек
       previousMillis = currentMillis;
       if (sens.readTemp()) { // Читаем температуру с термопары 
         if (sens.getTemp() >= temp) {
@@ -175,7 +183,33 @@ void loop() {
       }
     }
     // запрос температуры
-  }  
+  }
+
+  if ((menu == 0) && play) {
+    if (currentMillis - previousMillis >= interval) { // 1 сек
+      previousMillis = currentMillis;
+      // if (remainingTime > 0) {
+      //   Serial.print("Осталось времени: ");
+      //   Serial.println(remainingTime); // переводим миллисекунды в секунды
+
+      //   // здесь можно добавить другие действия, которые нужно выполнять во время отсчета
+
+      //   // delay(1000); // задержка в 1 секунду
+      // } else {
+      //   Serial.println("Время истекло!");
+      //   // здесь можно добавить действия, которые нужно выполнить по истечении времени
+      // }
+      // time = time - 60;
+      if (time >  1) {        
+        MenuCheckTime(time);
+        outPutTemp(temp);
+        time = time - 60;
+      } else {
+        offDevice();
+      }
+      // Serial.println(time);
+    }
+  }
 
   // sensor.requestTemp();
   
