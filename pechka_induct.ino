@@ -95,19 +95,21 @@ void loop() {
   }
 
   if (btnSet.isClick()) { // ЗАПУСК программы и ОСТАНОВКА при повторном нажатии
-    if (ok && (menu == 1 || menu == 0)) {
-      buzOn(); // включение пищалки на один писк
-      if (play) {
-        offDeviceBlinkLed();
-        play = false;
-        // ok = false;
-      } else {
-        play = true;
-        onDevice();
-        // ok = false;
-      }
-    }    
+    Serial.println("set");
+    if (play) {
+      offDevice();
+      play = false;
+      Serial.println("set play FALSE");
+      // ok = false;
+    } else {
+      play = true;
+      Serial.println("set play TRUE");
+      onDevice();
+    }
+    buzOn(); // включение пищалки на один писк
   }
+
+  // Serial.println(play);
 
   if (btnUp.isClick()) { // выбор меню ВРЕМЯ
     buzOn(); // включение пищалки на один писк
@@ -155,23 +157,23 @@ void loop() {
     }    
   }
 
-  // if ((menu == 1) && play) {
-  //   if (sens.readTemp()) { // Читаем температуру с термопары 
-  //     if (sens.getTemp() >= temp) {
-  //     Serial.print("Temp: "); // Если чтение прошло успешно - выводим в Serial
-  //     // Забираем температуру через getTemp
-  //     //Serial.print(sens.getTempInt());   // или getTempInt - целые числа (без float) 
-  //       Serial.print(sens.getTemp());
-  //       Serial.println(" *C");
-  //       offDevice();
-  //       delay(1000); // задержка на остывание 1 сек, чтобы датчик во время остывания не срабатывал
-  //     } else {
-  //       // readyDevice();
-  //     }
-  //   } else Serial.println("Error");   // ошибка чтения или подключения - выводим лог
-  //   delay(1000);
-  //   // запрос температуры
-  // }  
+  if ((menu == 1) && play) {
+    if (sens.readTemp()) { // Читаем температуру с термопары 
+      if (sens.getTemp() >= temp) {
+      Serial.print("Temp: "); // Если чтение прошло успешно - выводим в Serial
+      // Забираем температуру через getTemp
+      //Serial.print(sens.getTempInt());   // или getTempInt - целые числа (без float) 
+        Serial.print(sens.getTemp());
+        Serial.println(" *C");
+        offDevice();
+        // delay(1000); // задержка на остывание 1 сек, чтобы датчик во время остывания не срабатывал
+      } else {
+        // readyDevice();
+      }
+    } else Serial.println("Error");   // ошибка чтения или подключения - выводим лог
+    delay(1000);
+    // запрос температуры
+  }  
 
   // sensor.requestTemp();
   
@@ -265,6 +267,7 @@ void offDevice() { // выключение устройства
   offLeds(); // Выключение ВСЕХ светодиодов
   digitalWrite(blue_pin, HIGH); // Включение СИНЕГО светодиода
   digitalWrite(13, LOW); // Выключение пищалки
+  setDefaultVlue();
 }
 
 void offDeviceBlinkLed() { // выключение устройства
@@ -289,6 +292,7 @@ void resetDevice() {
   delay(3000);
   offLeds(); // выключение всех светодиодов
   digitalWrite(blue_pin, HIGH); // Включение СИНЕГО светодиода
+  play = false;
   menu = 2;
 }
 
