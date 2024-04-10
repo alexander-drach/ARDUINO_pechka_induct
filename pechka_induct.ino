@@ -108,16 +108,18 @@ void loop() {
   }
 
   if (btnSet.isClick()) { // ЗАПУСК программы и ОСТАНОВКА при повторном нажатии
-    Serial.println("set");
-    if (play) {
-      offDeviceBlinkLed();
-      play = false;
-      Serial.println("set play FALSE");
-      // ok = false;
-    } else {
-      play = true;
-      Serial.println("set play TRUE");
-      onDevice();
+    if (ok && (menu == 0 || menu == 1)) {
+      Serial.println("set");
+      if (play) {
+        offDeviceBlinkLed();
+        play = false;
+        Serial.println("set play FALSE");
+        // ok = false;
+      } else {
+        play = true;
+        Serial.println("set play TRUE");
+        onDevice();
+      }
     }
     buzOn(); // включение пищалки на один писк
   }
@@ -182,32 +184,21 @@ void loop() {
         }
       }
     }
-    // запрос температуры
   }
 
   if ((menu == 0) && play) {
     if (currentMillis - previousMillis >= interval) { // 1 сек
       previousMillis = currentMillis;
-      // if (remainingTime > 0) {
-      //   Serial.print("Осталось времени: ");
-      //   Serial.println(remainingTime); // переводим миллисекунды в секунды
 
-      //   // здесь можно добавить другие действия, которые нужно выполнять во время отсчета
-
-      //   // delay(1000); // задержка в 1 секунду
-      // } else {
-      //   Serial.println("Время истекло!");
-      //   // здесь можно добавить действия, которые нужно выполнить по истечении времени
-      // }
-      // time = time - 60;
       if (time >  1) {        
         MenuCheckTime(time);
         outPutTemp(temp);
         time = time - 60;
       } else {
+        time = 0;
+        MenuCheckTime(time);
         offDevice();
       }
-      // Serial.println(time);
     }
   }
 
