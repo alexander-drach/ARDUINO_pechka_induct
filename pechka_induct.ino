@@ -176,7 +176,11 @@ void loop() {
   if ((menu == 1) && play) {
     if (currentMillis - previousMillis >= interval) { // 1 сек, работа в режиме ТЕМПЕРАТУРА
       previousMillis = currentMillis;
-      if (sens.readTemp()) { // Читаем температуру с термопары 
+      
+      if (sens.readTemp()) { // Читаем температуру с термопары
+
+        readSensorCooling();
+
         if (sens.getTemp() >= temp) {
         Serial.print("Temp: "); // Если чтение прошло успешно - выводим в Serial
         Serial.print(sens.getTemp());
@@ -190,6 +194,7 @@ void loop() {
   if ((menu == 0) && play) {
     if (currentMillis - previousMillis >= interval) { // 1 сек, работа в режиме ВРЕМЯ
       previousMillis = currentMillis;
+      readSensorCooling();
 
       if (time >  0) {        
         MenuCheckTime(time);
@@ -203,21 +208,24 @@ void loop() {
     }
   }
 
-  sensor.requestTemp();
+  if (currentMillis - previousMillis >= interval) { // 1 сек, работа в режиме ВРЕМЯ
+    previousMillis = currentMillis;
+  }
   
-  if (currentMillis - previousMillis >= interval) { // 1 сек измерение датчика охлаждения
-      previousMillis = currentMillis;
-      //проверяем успешность чтения и выводим
-    if (sensor.readTemp()) {
-      if (sensor.getTemp() >=30) {
-        offDevice();
-      }
-      // Serial.println(sensor.getTemp());
-    }
-    else {
-      // Serial.println("error");
-    }
-  } 
+  // if (currentMillis - previousMillis >= interval) { // 1 сек измерение датчика охлаждения
+  //     previousMillis = currentMillis;
+  //     //проверяем успешность чтения и выводим
+  //   sensor.requestTemp();
+  //   if (sensor.readTemp()) {
+  //     if (sensor.getTemp() >=30) {
+  //       offDevice();
+  //     }
+  //     Serial.println(sensor.getTemp());
+  //   }
+  //   else {
+  //     // Serial.println("error");
+  //   }
+  // } 
 
   if (menu == 0) {
     MenuCheckTime(time);
@@ -232,7 +240,30 @@ void loop() {
   if (menu == 2) {
     outPutTime(time);
     outPutTemp(temp);
-  }  
+  }
+
+  // if (menu == 3) {
+  //   if (currentMillis - previousMillis >= interval) { // 1 сек, работа в режиме ВРЕМЯ
+  //     previousMillis = currentMillis;
+  //     readSensorCooling();
+  //     outPutTime(dangerTime);
+  //     // outPutTemp(temp);
+  //   }    
+  // }
+}
+
+void readSensorCooling() { // функция чтения датчика охлаждения  
+  sensor.requestTemp();
+  if (sensor.readTemp()) {
+    if (sensor.getTemp() >=30) {
+      // menu = 3;
+      offDevice();
+    }
+    Serial.println(sensor.getTemp());
+  }
+  else {
+    // Serial.println("error");
+  }
 }
 
 void buzOn() { // функция включения пищалки на один писк
