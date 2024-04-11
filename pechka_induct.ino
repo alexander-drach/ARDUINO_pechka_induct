@@ -174,7 +174,7 @@ void loop() {
   }
 
   if ((menu == 1) && play) {
-    if (currentMillis - previousMillis >= interval) { // 1 сек
+    if (currentMillis - previousMillis >= interval) { // 1 сек, работа в режиме ТЕМПЕРАТУРА
       previousMillis = currentMillis;
       if (sens.readTemp()) { // Читаем температуру с термопары 
         if (sens.getTemp() >= temp) {
@@ -188,7 +188,7 @@ void loop() {
   }
 
   if ((menu == 0) && play) {
-    if (currentMillis - previousMillis >= interval) { // 1 сек
+    if (currentMillis - previousMillis >= interval) { // 1 сек, работа в режиме ВРЕМЯ
       previousMillis = currentMillis;
 
       if (time >  0) {        
@@ -205,7 +205,7 @@ void loop() {
 
   sensor.requestTemp();
   
-  if (currentMillis - previousMillis >= interval) { // 1 сек
+  if (currentMillis - previousMillis >= interval) { // 1 сек измерение датчика охлаждения
       previousMillis = currentMillis;
       //проверяем успешность чтения и выводим
     if (sensor.readTemp()) {
@@ -294,7 +294,11 @@ void offDevice() { // выключение устройства
   digitalWrite(red_pin, HIGH); // Включение КРАСНОГО светодиода
   delay(3000); // задержка 3 секунды после выключения
   buzOnThree();
+
   play = false;
+  ok = false;
+  menu = 2;
+
   offLeds(); // Выключение ВСЕХ светодиодов
   digitalWrite(blue_pin, HIGH); // Включение СИНЕГО светодиода
   digitalWrite(13, LOW); // Выключение пищалки
@@ -309,10 +313,15 @@ void offDeviceBlinkLed() { // выключение устройства
     offLeds(); // выключение всех светодиодов
     delay(500);
   }
+
+  play = false;
+  ok = false;
+  menu = 2;
  
   offLeds(); // выключение всех светодиодов
   delay(3000); // задержка 3 секунды после выключения
   digitalWrite(blue_pin, HIGH); // Включение СИНЕГО светодиода
+  setDefaultVlue();
 }
 
 void resetDevice() {
