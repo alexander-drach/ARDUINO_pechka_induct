@@ -54,7 +54,8 @@ unsigned long previousMillis = 0;
 const long interval = 1000; // интервал для измерения температуры (1 секунда)
 
 unsigned long startTime;
-unsigned long countdownDuration = 5000; // 5 секунд
+int dangerTime = 3600;
+// unsigned long countdownDuration = 5000; // 5 секунд
 
 void setup() {
   Serial.begin(9600);
@@ -190,7 +191,7 @@ void loop() {
     if (currentMillis - previousMillis >= interval) { // 1 сек
       previousMillis = currentMillis;
 
-      if (time >  1) {        
+      if (time >  0) {        
         MenuCheckTime(time);
         outPutTemp(temp);
         time = time - 60;
@@ -202,18 +203,21 @@ void loop() {
     }
   }
 
-  // sensor.requestTemp();
+  sensor.requestTemp();
   
-  //вместо delay используй таймер на millis(), пример async_read // Датчик охлаждения
-  // delay(500);
-  
-  //проверяем успешность чтения и выводим
-//   if (sensor.readTemp()) {
-//     Serial.println(sensor.getTemp());
-//   }
-//   else {
-//     Serial.println("error");
-//   } 
+  if (currentMillis - previousMillis >= interval) { // 1 сек
+      previousMillis = currentMillis;
+      //проверяем успешность чтения и выводим
+    if (sensor.readTemp()) {
+      if (sensor.getTemp() >=30) {
+        offDevice();
+      }
+      // Serial.println(sensor.getTemp());
+    }
+    else {
+      // Serial.println("error");
+    }
+  } 
 
   if (menu == 0) {
     MenuCheckTime(time);
