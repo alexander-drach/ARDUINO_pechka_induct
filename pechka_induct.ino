@@ -55,7 +55,8 @@ const long interval = 1000; // интервал для измерения тем
 
 unsigned long startTime;
 int dangerTime = 3600;
-// unsigned long countdownDuration = 5000; // 5 секунд
+
+bool colling = false;
 
 void setup() {
   Serial.begin(9600);
@@ -208,12 +209,27 @@ void loop() {
     }
   }
 
-  if (currentMillis - previousMillis >= interval) { // 1 сек, работа в режиме ВРЕМЯ
-    previousMillis = currentMillis;
-  }
+  // if (currentMillis - previousMillis >= interval) { // 1 сек, работа в режиме ВРЕМЯ
+  //   previousMillis = currentMillis;
+  // }
   
-  // if (currentMillis - previousMillis >= interval) { // 1 сек измерение датчика охлаждения
-  //     previousMillis = currentMillis;
+  if (currentMillis - previousMillis >= interval) { // 1 сек измерение датчика охлаждения
+      previousMillis = currentMillis;
+      readSensorCooling();
+    if (colling && !play) {
+      if (dangerTime >  0) {        
+        outPutTime(dangerTime);
+        outPutTemp(temp);
+        dangerTime = dangerTime - 60;
+        offLeds(); // выключение всех светодиодов
+        digitalWrite(red_pin, HIGH); // Включение КРАСНОГО светодиода
+      } else {
+        offLeds(); // выключение всех светодиодов
+        digitalWrite(blue_pin, HIGH); // Включение СИНЕГО светодиода
+        colling = false;
+        Serial.println("time end");
+      }
+    }
   //     //проверяем успешность чтения и выводим
   //   sensor.requestTemp();
   //   if (sensor.readTemp()) {
@@ -225,30 +241,41 @@ void loop() {
   //   else {
   //     // Serial.println("error");
   //   }
-  // } 
+  } 
 
-  if (menu == 0) {
+  if (menu == 0 && !colling) {
     MenuCheckTime(time);
     outPutTemp(temp);
   }
 
-  if (menu == 1) {
+  if (menu == 1 && !colling) {
     outPutTime(time);
     MenuCheckTemp(temp);
   } 
 
-  if (menu == 2) {
+  if (menu == 2 && !colling) {
     outPutTime(time);
     outPutTemp(temp);
   }
 
-  // if (menu == 3) {
-  //   if (currentMillis - previousMillis >= interval) { // 1 сек, работа в режиме ВРЕМЯ
+  // Serial.println(colling);
+  //  Serial.println(dangerTime);
+
+  // if (colling && !play) {
+  //   Serial.println("blin");
+  //   readSensorCooling();
+  //   if ((currentMillis - previousMillis >= interval)) { // 1 сек, работа в режиме ВРЕМЯ
   //     previousMillis = currentMillis;
-  //     readSensorCooling();
-  //     outPutTime(dangerTime);
-  //     // outPutTemp(temp);
-  //   }    
+      
+
+  //     if (dangerTime >  0) {        
+  //       MenuCheckTime(dangerTime);
+  //       outPutTemp(dangerTime);
+  //       dangerTime = dangerTime - 60;
+  //     } else {
+  //       Serial.println("time end");
+  //     }
+  //   }
   // }
 }
 
@@ -256,10 +283,16 @@ void readSensorCooling() { // функция чтения датчика охл�
   sensor.requestTemp();
   if (sensor.readTemp()) {
     if (sensor.getTemp() >=30) {
+      play = false;
+      colling = true;
       // menu = 3;
-      offDevice();
+      // offDevice();
+      digitalWrite(12, HIGH); // Выключение реле
+      // buzOn();      
+    } else {
+      // colling = false;
     }
-    Serial.println(sensor.getTemp());
+    // Serial.println(sensor.getTemp());
   }
   else {
     // Serial.println("error");
