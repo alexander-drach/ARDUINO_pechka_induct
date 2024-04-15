@@ -55,6 +55,7 @@ const long interval = 1000; // интервал для измерения тем
 
 unsigned long startTime;
 int dangerTime = 3600;
+int intermediateTime;
 
 bool colling = false;
 
@@ -105,7 +106,8 @@ void loop() {
     Serial.println("ok");
     if (menu == 1 || menu == 0) {
       ok = true;
-    }    
+    }
+    intermediateTime = time; 
     buzOn(); // включение пищалки на один писк
   }
 
@@ -211,7 +213,7 @@ void loop() {
         outPutTemp(temp);
         time = time - 60;
       } else {
-        time = 0;
+        // time = 0;
         MenuCheckTime(time);
         offDevice();
       }
@@ -324,8 +326,12 @@ void setDefaultVlue() {
   temp = 500;
   time = 180;
 }
+void setintermediateValue() {
+  time = intermediateTime;
+}
 
 void offDevice() { // выключение устройства
+  setintermediateValue();
   digitalWrite(12, HIGH); // Выключение реле
   offLeds(); // выключение всех светодиодов
   digitalWrite(red_pin, HIGH); // Включение КРАСНОГО светодиода
@@ -340,9 +346,11 @@ void offDevice() { // выключение устройства
   digitalWrite(blue_pin, HIGH); // Включение СИНЕГО светодиода
   digitalWrite(13, LOW); // Выключение пищалки
   // setDefaultVlue();
+  
 }
 
 void offDeviceBlinkLed() { // выключение устройства
+  setintermediateValue();
   digitalWrite(12, HIGH); // Выключение реле
   for (int i = 0; i <= 2; i++) {
     digitalWrite(red_pin, HIGH); // Включение КРАСНОГО светодиода
@@ -358,7 +366,7 @@ void offDeviceBlinkLed() { // выключение устройства
   offLeds(); // выключение всех светодиодов
   delay(3000); // задержка 3 секунды после выключения
   digitalWrite(blue_pin, HIGH); // Включение СИНЕГО светодиода
-  // setDefaultVlue();
+  // setDefaultVlue();  
 }
 
 void resetDevice() {
