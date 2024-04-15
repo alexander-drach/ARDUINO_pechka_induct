@@ -142,7 +142,7 @@ void loop() {
 
   if ((btnRight.isClick() || btnRight.isHold()) && !colling) { // УВЕЛИЧЕНИЕ веремни/температуры
     if (menu == 0) {
-      time += 60;
+      time += 6;
 
       if (time > 900) {
         time = 900;
@@ -160,10 +160,10 @@ void loop() {
 
   if ((btnLeft.isClick() || btnLeft.isHold()) && !colling) { // УМЕНЬШЕНИЕ веремни/температуры
     if (menu == 0) {
-      time -= 60;
+      time -= 6;
 
-      if (time < 60) {
-        time = 60;
+      if (time < 30) {
+        time = 30;
       }
     }
     if (menu == 1) {
@@ -339,7 +339,7 @@ void offDevice() { // выключение устройства
   offLeds(); // Выключение ВСЕХ светодиодов
   digitalWrite(blue_pin, HIGH); // Включение СИНЕГО светодиода
   digitalWrite(13, LOW); // Выключение пищалки
-  setDefaultVlue();
+  // setDefaultVlue();
 }
 
 void offDeviceBlinkLed() { // выключение устройства
@@ -358,7 +358,7 @@ void offDeviceBlinkLed() { // выключение устройства
   offLeds(); // выключение всех светодиодов
   delay(3000); // задержка 3 секунды после выключения
   digitalWrite(blue_pin, HIGH); // Включение СИНЕГО светодиода
-  setDefaultVlue();
+  // setDefaultVlue();
 }
 
 void resetDevice() {
