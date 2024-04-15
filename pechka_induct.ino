@@ -173,16 +173,25 @@ void loop() {
       }
     }    
   }
+  // sens.readTemp();
+  // Serial.print("Temp: "); // Если чтение прошло успешно - выводим в Serial
+  // Serial.print(sens.getTemp());
+  // Serial.println(" *C");
 
-  if ((menu == 1) && play) {
+  if ((menu == 1) && play && !colling) {
     if (currentMillis - previousMillis >= interval) { // 1 сек, работа в режиме ТЕМПЕРАТУРА
       previousMillis = currentMillis;
       
       if (sens.readTemp()) { // Читаем температуру с термопары
+      
 
         readSensorCooling();
+        Serial.print("Temp: "); // Если чтение прошло успешно - выводим в Serial
+        Serial.print(sens.getTemp());
+        Serial.println(" *C");
 
         if (sens.getTemp() >= temp) {
+          Serial.println("termopara BIG");
         Serial.print("Temp: "); // Если чтение прошло успешно - выводим в Serial
         Serial.print(sens.getTemp());
         Serial.println(" *C");
@@ -192,7 +201,7 @@ void loop() {
     }
   }
 
-  if ((menu == 0) && play) {
+  if ((menu == 0) && play && !colling) {
     if (currentMillis - previousMillis >= interval) { // 1 сек, работа в режиме ВРЕМЯ
       previousMillis = currentMillis;
       readSensorCooling();
@@ -255,6 +264,7 @@ void readSensorCooling() { // функция чтения датчика охл�
     } else {
       // colling = false;
     }
+    Serial.print("Cool: ");
     Serial.println(sensor.getTemp());
   }
   else {
