@@ -94,14 +94,14 @@ void loop() {
   btnDown.tick();
   btnUp.tick();
 
-  if (btnReset.isHolded()) {
+  if (btnReset.isHolded() && !colling) {
     buzOn(); // включение пищалки на один писк
     Serial.println("reset");
     resetDevice();
     // ok = false;
   }
 
-  if (btnOk.isClick()) {
+  if (btnOk.isClick() && !colling) {
     Serial.println("ok");
     if (menu == 1 || menu == 0) {
       ok = true;
@@ -109,7 +109,7 @@ void loop() {
     buzOn(); // включение пищалки на один писк
   }
 
-  if (btnSet.isClick()) { // ЗАПУСК программы и ОСТАНОВКА при повторном нажатии
+  if (btnSet.isClick() && !colling) { // ЗАПУСК программы и ОСТАНОВКА при повторном нажатии
     if (ok && (menu == 0 || menu == 1)) {
       Serial.println("set");
       if (play) {
@@ -128,21 +128,21 @@ void loop() {
 
   // Serial.println(play);
 
-  if (btnUp.isClick()) { // выбор меню ВРЕМЯ
+  if (btnUp.isClick() && !colling) { // выбор меню ВРЕМЯ
     buzOn(); // включение пищалки на один писк
     menu = 0;
     MenuCheckTime(time);   
   }
 
-  if (btnDown.isClick()) { // выбор меню ТЕМПЕРАТУРА
+  if (btnDown.isClick() && !colling) { // выбор меню ТЕМПЕРАТУРА
     buzOn(); // включение пищалки на один писк
     menu = 1;    
     MenuCheckTemp(temp);
   }
 
-  if (btnRight.isClick() || btnRight.isHold()) { // УВЕЛИЧЕНИЕ веремни/температуры
+  if ((btnRight.isClick() || btnRight.isHold()) && !colling) { // УВЕЛИЧЕНИЕ веремни/температуры
     if (menu == 0) {
-      time += 6;
+      time += 60;
 
       if (time > 900) {
         time = 900;
@@ -158,12 +158,12 @@ void loop() {
     }    
   }
 
-  if (btnLeft.isClick() || btnLeft.isHold()) { // УМЕНЬШЕНИЕ веремни/температуры
+  if ((btnLeft.isClick() || btnLeft.isHold()) && !colling) { // УМЕНЬШЕНИЕ веремни/температуры
     if (menu == 0) {
-      time -= 6;
+      time -= 60;
 
-      if (time < 30) {
-        time = 30;
+      if (time < 60) {
+        time = 60;
       }
     }
     if (menu == 1) {
@@ -208,10 +208,6 @@ void loop() {
       }
     }
   }
-
-  // if (currentMillis - previousMillis >= interval) { // 1 сек, работа в режиме ВРЕМЯ
-  //   previousMillis = currentMillis;
-  // }
   
   if (currentMillis - previousMillis >= interval) { // 1 сек измерение датчика охлаждения
       previousMillis = currentMillis;
@@ -223,24 +219,14 @@ void loop() {
         dangerTime = dangerTime - 60;
         offLeds(); // выключение всех светодиодов
         digitalWrite(red_pin, HIGH); // Включение КРАСНОГО светодиода
+        ok = false;
       } else {
         offLeds(); // выключение всех светодиодов
         digitalWrite(blue_pin, HIGH); // Включение СИНЕГО светодиода
         colling = false;
-        Serial.println("time end");
+        // Serial.println("time end");
       }
     }
-  //     //проверяем успешность чтения и выводим
-  //   sensor.requestTemp();
-  //   if (sensor.readTemp()) {
-  //     if (sensor.getTemp() >=30) {
-  //       offDevice();
-  //     }
-  //     Serial.println(sensor.getTemp());
-  //   }
-  //   else {
-  //     // Serial.println("error");
-  //   }
   } 
 
   if (menu == 0 && !colling) {
@@ -257,42 +243,19 @@ void loop() {
     outPutTime(time);
     outPutTemp(temp);
   }
-
-  // Serial.println(colling);
-  //  Serial.println(dangerTime);
-
-  // if (colling && !play) {
-  //   Serial.println("blin");
-  //   readSensorCooling();
-  //   if ((currentMillis - previousMillis >= interval)) { // 1 сек, работа в режиме ВРЕМЯ
-  //     previousMillis = currentMillis;
-      
-
-  //     if (dangerTime >  0) {        
-  //       MenuCheckTime(dangerTime);
-  //       outPutTemp(dangerTime);
-  //       dangerTime = dangerTime - 60;
-  //     } else {
-  //       Serial.println("time end");
-  //     }
-  //   }
-  // }
 }
 
 void readSensorCooling() { // функция чтения датчика охлаждения  
   sensor.requestTemp();
   if (sensor.readTemp()) {
-    if (sensor.getTemp() >=30) {
+    if (sensor.getTemp() >=80) {
       play = false;
       colling = true;
-      // menu = 3;
-      // offDevice();
       digitalWrite(12, HIGH); // Выключение реле
-      // buzOn();      
     } else {
       // colling = false;
     }
-    // Serial.println(sensor.getTemp());
+    Serial.println(sensor.getTemp());
   }
   else {
     // Serial.println("error");
